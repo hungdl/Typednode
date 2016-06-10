@@ -1,0 +1,22 @@
+{
+	"version": "1.0.0",
+	"name": "asp.net",
+	"private": true,
+  "devDependencies": {
+    "typings": "1.0.4",
+    "webpack": "1.13.1",
+    "babel-core": "6.9.1",
+    "babel-loader": "6.2.4",
+    "ts-loader": "0.8.2",
+    "jsx-loader": "0.13.2",
+    "style-loader": "0.8.2",
+    "css-loader":  "0.23.1"    
+  },
+  "dependencies": {
+    "typescript": "1.8.10",
+    "react": "15.1.0",
+    "react-dom": "15.1.0",
+    "rxjs-es": "5.0.0-beta.8",
+    "requirejs": "2.2.0"
+  }
+}

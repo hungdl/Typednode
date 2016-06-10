@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es6",
+    "noImplicitAny": false,
+    "jsx": "react",
+    "outDir": "js",
+    "sourceMap": true,
+    "module": "commonjs",
+    "removeComments": true,
+    "noEmitOnError": true
+  },
+  "filesGlob": [
+    "./**/*.ts",
+    "./**/*.tsx"
+  ],
+  "files": [
+    "./typings/index.d.ts"
+  ]
+}

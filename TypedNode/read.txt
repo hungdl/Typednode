@@ -1,0 +1,2 @@
+﻿-- install typings
+"C:\Program Files\nodejs\node.exe" "D:\TtypedNode\TtypedNode\node_modules\typings\dist\bin.js" "install" "dt~react-global" "--global" "--save"
