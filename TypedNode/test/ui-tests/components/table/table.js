@@ -6,12 +6,12 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const Components = require('../../../../src/components/component');
 var ExampleTable = React.createClass({
-    getInitialState() {
+    getColumnWidths() {
         return {
             columnWidths: [
                 250,
-                null,
-                null
+                0,
+                0
             ]
         };
     },
@@ -28,7 +28,7 @@ var ExampleTable = React.createClass({
         return (React.createElement("tr", null, React.createElement("th", {style: { width: computedColumnWidths[0] }}, "Id"), React.createElement("th", {style: { width: computedColumnWidths[1] }}, "Content"), React.createElement("th", {style: { width: computedColumnWidths[2] }}, "SDVXCf")));
     },
     render() {
-        return (React.createElement(Components.Table, {containerHeight: 500, rowHeight: 50, rowsCount: 10000, getRow: this.getRow, getHeader: this.getHeader}));
+        return (React.createElement(Components.Table, {containerHeight: 500, rowHeight: 50, rowsCount: 10000, getRow: this.getRow, getHeader: this.getHeader, columnWidths: [250, 0, 0]}));
     }
 });
 ReactDOM.render(React.createElement(ExampleTable, null), document.getElementById('app'));

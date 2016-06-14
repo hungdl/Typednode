@@ -8,12 +8,12 @@ import * as Rx from 'rxjs-es/src/rx';
 import * as Components from '../../../../src/components/component';
 
 var ExampleTable = React.createClass({
-    getInitialState() {
+    getColumnWidths() {
         return {
             columnWidths: [
                 250,
-                null,
-                null
+                0,
+                0
             ]
         };
     },
@@ -45,6 +45,7 @@ var ExampleTable = React.createClass({
     },
 
     render(): JSX.Element {
+
         return (
             <Components.Table
                 containerHeight={500}
@@ -52,8 +53,7 @@ var ExampleTable = React.createClass({
                 rowsCount={10000}
                 getRow={this.getRow}
                 getHeader={this.getHeader}
-                //columnWidths={this.state.columnWidths}
-                />
+                columnWidths={ [250, 0,0]}/>
         );
     }
 });

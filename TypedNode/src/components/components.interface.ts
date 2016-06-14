@@ -7,11 +7,12 @@ interface ITableProps {
     rowsCount: number;
     rowHeight: number;
     containerHeight: number;
-    getRow(itemIndex: number, keyIndex: number, top: number, computedColumnWidths: Array<number>, rowWidth: number): JSX.Element;
+    getRow(itemIndex: number, keyIndex: number, top: number, computedColumnWidths: Array<number>, rowWidth: number): JSX
+    .Element;
     getHeader(computedColumnWidths: Array<number>, containerWidth: number): JSX.Element;
+    columnWidths: Array<number>;
 }
 
 interface ITableStage {
     visibleIndices: Array<any>;
-    columnWidths: Array<number>;
 }

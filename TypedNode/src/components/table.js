@@ -1,5 +1,4 @@
 /// <reference path="../import.d.ts" />
-/// <reference path="../../node_modules/rxjs-es/src/rx.ts" />
 "use strict";
 const React = require('react');
 const ReactDOM = require('react-dom');
@@ -16,15 +15,12 @@ class Table extends React.Component {
             height: this.props.containerHeight,
             overflowX: 'hidden'
         };
-        return (React.createElement("div", null, React.createElement("div", {ref: this.refs[Table.headerContainerRefProperty]}), React.createElement("div", {ref: this.refs[Table.containerRefProperty], style: containerStyle})));
-    }
-    getInitialState() {
-        return this.state;
+        return (React.createElement("div", null, React.createElement("div", {ref: (ctrl) => this.headerContainerNode = ctrl}), React.createElement("div", {ref: (ctrl) => this.containerNode = ctrl, style: containerStyle})));
     }
     componentDidMount() {
         // get the nodes and store them, don't want to look them up every time
-        this.containerNode = ReactDOM.findDOMNode(this.refs[Table.containerRefProperty]);
-        this.headerContainerNode = ReactDOM.findDOMNode(this.refs[Table.headerContainerRefProperty]);
+        this.headerContainerNode = ReactDOM.findDOMNode(this.headerContainerNode);
+        this.containerNode = ReactDOM.findDOMNode(this.containerNode);
         // set up the table and the scroll observer
         this.initializeTable();
         // have the component rerender when the window resizes,
@@ -37,7 +33,7 @@ class Table extends React.Component {
     componentDidUpdate() {
         // do the actual render when the component updates itself
         var containerWidth = this.containerNode.offsetWidth;
-        var computedColumnWidths = Table.getColumnWidths(containerWidth, this.state.columnWidths);
+        var computedColumnWidths = Table.getColumnWidths(containerWidth, this.props.columnWidths);
         var output = this.deferredRender(computedColumnWidths, containerWidth);
         ReactDOM.render(output, this.containerNode);
         // render the header with the same constraints as the rows
@@ -57,11 +53,12 @@ class Table extends React.Component {
             }
         }
         ;
+        var columnsCount = columnWidths.length;
         var computation = columnWidths.reduce((agg, width) => {
-            agg.remainingWidth -= width;
-            agg.customWidthColumns -= 1;
+            agg.remainningWidth -= width;
+            agg.autoSizeColumnsCount -= 1;
             return agg;
-        }, new Compulation(columnWidths.length, rowWidth));
+        }, new Compulation(columnsCount, rowWidth));
         var standardWidth = computation.remainningWidth / computation.autoSizeColumnsCount;
         return columnWidths.map(width => {
             if (width != null) {
@@ -85,8 +82,8 @@ class Table extends React.Component {
         var rowsCount = this.props.rowsCount;
         var visibleRows = Math.ceil(containerHeight / rowHeight);
         var initialScrollSubject = new Rx.ReplaySubject(1);
-        initialScrollSubject.next(this.getScrollTop());
-        var scrollTopStream = initialScrollSubject.merge(Rx.Observable.fromEvent(this.containerNode, 'scroll').map(this.getScrollTop));
+        initialScrollSubject.next(this.containerNode.scrollTop);
+        var scrollTopStream = initialScrollSubject.merge(Rx.Observable.fromEvent(this.containerNode, 'scroll').map(() => this.containerNode.scrollTop));
         var firstVisibleRowStream = scrollTopStream.map((scrollTop) => {
             return Math.floor(scrollTop / rowHeight);
         }).distinctUntilChanged();
@@ -97,7 +94,7 @@ class Table extends React.Component {
                 firstVisibleRowIndex -= lastVisibleRowIndex - rowsCount;
             }
             for (var i = 0; i <= visibleRows; i++) {
-                visibleIndices.push(i + firstVisibleRowIndex);
+                visibleIndices.push(Number(i + firstVisibleRowIndex));
             }
             return visibleIndices;
         });
@@ -105,10 +102,5 @@ class Table extends React.Component {
             this.setState({ visibleIndices: indices });
         });
     }
-    getScrollTop() {
-        return this.containerNode.scrollTop;
-    }
 }
-Table.containerRefProperty = "Container";
-Table.headerContainerRefProperty = "HeaderContainer";
 exports.Table = Table;

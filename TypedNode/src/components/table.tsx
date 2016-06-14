@@ -1,16 +1,12 @@
 ﻿/// <reference path="../import.d.ts" />
-/// <reference path="../../node_modules/rxjs-es/src/rx.ts" />
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as Rx from 'rxjs-es/src/rx';
 
 class Table extends React.Component<ITableProps, ITableStage> {
-    private static containerRefProperty = "Container";
-    private static headerContainerRefProperty = "HeaderContainer";
-
-    containerNode: HTMLElement;
-    headerContainerNode: HTMLElement;
+    private containerNode: HTMLElement;
+    private headerContainerNode: HTMLElement;
 
     private visibleIndicesSubscription: Rx.Subscription;
     private windowResizeSubscription : Rx.Subscription;
@@ -30,21 +26,17 @@ class Table extends React.Component<ITableProps, ITableStage> {
 
         return (
             <div>
-                <div ref={this.refs[Table.headerContainerRefProperty]}/>
-                <div ref={this.refs[Table.containerRefProperty]}
+                <div ref={(ctrl)  => this.headerContainerNode = ctrl }/>
+                <div ref={(ctrl) => this.containerNode = ctrl}
                      style={containerStyle} />
             </div>
         );
     }
 
-    public  getInitialState(): ITableStage {
-        return this.state;
-    }
-
     public componentDidMount(): void {
         // get the nodes and store them, don't want to look them up every time
-        this.containerNode = ReactDOM.findDOMNode<HTMLElement>(this.refs[Table.containerRefProperty]);
-        this.headerContainerNode = ReactDOM.findDOMNode<HTMLElement>(this.refs[Table.headerContainerRefProperty]);
+        this.headerContainerNode = ReactDOM.findDOMNode<HTMLElement>(this.headerContainerNode);
+        this.containerNode = ReactDOM.findDOMNode<HTMLElement>(this.containerNode);
 
         // set up the table and the scroll observer
         this.initializeTable();
@@ -60,7 +52,7 @@ class Table extends React.Component<ITableProps, ITableStage> {
     public  componentDidUpdate(): void {
         // do the actual render when the component updates itself
         var containerWidth = this.containerNode.offsetWidth;
-        var computedColumnWidths = Table.getColumnWidths(containerWidth, this.state.columnWidths);
+        var computedColumnWidths = Table.getColumnWidths(containerWidth, this.props.columnWidths);
         var output = this.deferredRender(computedColumnWidths, containerWidth);
         ReactDOM.render(output, this.containerNode);
 
@@ -93,12 +85,13 @@ class Table extends React.Component<ITableProps, ITableStage> {
             }
         };
 
-        var computation: Compulation = columnWidths.reduce((agg: IColumnWidth, width: number): any => {
-                agg.remainingWidth -= width;
-                agg.customWidthColumns -= 1;
+        var columnsCount = columnWidths.length;
+        var computation: Compulation = columnWidths.reduce((agg: Compulation, width: number): any => {
+                agg.remainningWidth -= width;
+                agg.autoSizeColumnsCount -= 1;
                 return agg;
             },
-            new Compulation(columnWidths.length, rowWidth)
+            new Compulation(columnsCount, rowWidth)
         );
 
         var standardWidth = computation.remainningWidth / computation.autoSizeColumnsCount;
@@ -131,11 +124,10 @@ class Table extends React.Component<ITableProps, ITableStage> {
         var visibleRows = Math.ceil(containerHeight / rowHeight);
 
         var initialScrollSubject = new Rx.ReplaySubject(1);
-        initialScrollSubject.next(this.getScrollTop());
-
+        initialScrollSubject.next(this.containerNode.scrollTop);
 
         var scrollTopStream = initialScrollSubject.merge(
-            Rx.Observable.fromEvent(this.containerNode, 'scroll').map(this.getScrollTop)
+            Rx.Observable.fromEvent(this.containerNode, 'scroll').map(() => this.containerNode.scrollTop)
         );
 
         var firstVisibleRowStream = scrollTopStream.map((scrollTop: number) => {
@@ -150,7 +142,7 @@ class Table extends React.Component<ITableProps, ITableStage> {
             }
 
             for (var i = 0; i <= visibleRows; i++) {
-                visibleIndices.push(i + firstVisibleRowIndex);
+                visibleIndices.push(Number(i + firstVisibleRowIndex));
             }
 
             return visibleIndices;
@@ -159,10 +151,6 @@ class Table extends React.Component<ITableProps, ITableStage> {
         this.visibleIndicesSubscription = visibleIndicesStream.subscribe((indices) => {
             this.setState({ visibleIndices: indices } as ITableStage);
         });
-    }
-
-    private getScrollTop(): number {
-        return this.containerNode.scrollTop;
     }
 }
 
